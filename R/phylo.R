@@ -1300,7 +1300,7 @@ pml.fit <- function(tree, data, bf = rep(1 / length(levels), length(levels)),
 #'
 #' @rdname pml
 #' @export pml
-pml <- function(tree, data, bf = NULL, Q = NULL, inv = 0, k = 1, shape = 1,
+pml <- function(tree, data, bf = NULL, fullQ = NULL, Q = NULL, inv = 0, k = 1, shape = 1,
                 rate = 1, model = NULL, site.rate = "gamma", ASC = FALSE, ...) {
   call <- match.call()
   extras <- match.call(expand.dots = FALSE)$...
@@ -1386,7 +1386,13 @@ pml <- function(tree, data, bf = NULL, Q = NULL, inv = 0, k = 1, shape = 1,
   if (is.null(Q))
     Q <- rep(1, length(levels) * (length(levels) - 1) / 2)
   m <- 1
-  eig <- edQt(bf = bf, Q = Q)
+  if (is.null(Q)) {
+    eig <- edQt(bf = bf, Q = Q)
+  } else {
+    e <- eigen(fullQ, FALSE)
+    e$inv <- solve.default(e$vec)
+    eig <- e
+  }
   if(is.null(g) | is.null(w)){
 #    if(site.rate=="free_rate"){
 #      w <- rep(1/k, k)
